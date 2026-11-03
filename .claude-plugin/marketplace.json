@@ -1,0 +1,14 @@
+{
+  "name": "nikicat-tasks",
+  "owner": {
+    "name": "Nikolay Bryskin"
+  },
+  "plugins": [
+    {
+      "name": "tasks",
+      "source": "./",
+      "description": "Task tracking as plain Markdown files in each repo's .tasks/, deleted when done"
+    }
+  ],
+  "description": "Task tracking as plain Markdown files in git repos"
+}

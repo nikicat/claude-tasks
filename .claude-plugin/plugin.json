@@ -1,0 +1,8 @@
+{
+  "name": "tasks",
+  "description": "Task tracking as plain Markdown files in each repo's .tasks/, deleted when done; git history is the archive",
+  "version": "0.1.0",
+  "author": { "name": "Nikolay Bryskin" },
+  "repository": "https://github.com/nikicat/claude-tasks",
+  "license": "MIT"
+}
