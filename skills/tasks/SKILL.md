@@ -30,7 +30,7 @@ directory.
 ```markdown
 ---
 status: todo                              # todo | doing | blocked
-deps: [T0005, billing#T0012]           # optional
+deps: [T0005, billing#T0012]              # optional
 due: 2026-11-07                           # optional
 tags: [backend]                           # optional
 ---
@@ -127,7 +127,7 @@ When writing a reference, use the shortest form that's unambiguous from the
 repo the task is in.
 
 **Resolve a reference to a local clone.** Directory names don't reliably
-match remote names (`acme-tracing` is a clone of `tracing`), so match on
+match remote names (`acme-tracing` may be a clone of `tracing`), so match on
 the remote. Build the map once per session, which takes a few seconds:
 
 ```sh
@@ -143,11 +143,14 @@ reference leaves it out. One remote can have several clones (forks,
 worktree-style copies, submodules). Use the one with the newest last commit,
 and mention the others if they disagree.
 
-**Umbrella tasks** that span repos live in a dedicated repo for that group,
-e.g. `team-tasks`. The umbrella task lists its per-repo subtasks in
-`deps`, so it shows as ready once they are all closed. Each subtask says
-`part of team-tasks#T0003` in its body. Personal tasks that aren't tied
-to any repo go in `~/src/tasks/`.
+**A personal tasks repo** (say `you/tasks`, cloned anywhere under `~/src`,
+usually private) holds two kinds of task: work that isn't tied to any repo,
+and umbrella tasks that span repos, possibly across owners. An umbrella task
+lists its per-repo subtasks in `deps` with owner-qualified references (it
+lives under a different owner than they do), so it shows as ready once they
+are all closed. Each subtask says `part of you/tasks#T0003` in its body. If
+the tasks repo is private, leave that backlink out of subtasks in shared
+repos, because teammates can't resolve it.
 
 **Dependency state.** Resolve the reference to a clone `$d`, then:
 
