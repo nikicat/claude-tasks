@@ -7,8 +7,8 @@ date while you work. There is no database and no service.
 - Each repo keeps its open tasks in `.tasks/NNNN-slug.md`, one file per task.
 - **Done = deleted** in the commit that resolves the task. Git history is the
   archive.
-- Cross-repo dependencies are written `other-repo#0012`, where `other-repo` is
-  the path under `~/src`.
+- Cross-repo dependencies are written `other-repo#T0012` (same owner) or
+  `owner/repo#T0012`, resolved to whichever local clone has that remote.
 - Only repos that contain `.tasks/` are touched.
 
 The file format and the manual workflow are in
