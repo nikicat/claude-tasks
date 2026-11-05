@@ -30,9 +30,14 @@ copied into each repo as `.tasks/README.md`.
 ## Install
 
 ```sh
-claude plugin marketplace add nikicat/claude-tasks
-claude plugin install tasks@nikicat-tasks
+claude plugin marketplace add nikicat/claude-plugins
+claude plugin install tasks@nikicat
 ```
+
+This installs from the shared
+[nikicat/claude-plugins](https://github.com/nikicat/claude-plugins) marketplace.
+The repo is still its own marketplace too (`nikicat/claude-tasks`, plugin
+`tasks@nikicat-tasks`).
 
 To start tracking a repo, ask Claude to "set up tasks here", or run
 `mkdir .tasks` yourself and copy the README template into it.
