@@ -1,6 +1,6 @@
 ---
 name: tasks
-description: Track tasks as plain Markdown files in each repo's `.tasks/`. One file per open task, deleted when done, with git history as the archive. Cross-repo deps via `repo#Tid`, and an overview by scanning ~/src. Promotes ad-hoc work to a tracked task when it outgrows the session. Use when the user wants to add, list, start, block, or finish a task, asks "what's open/next", wants to plan their day/week across projects, wants task tracking set up in a repo, references a task id like T0007, api#T0012 or owner/repo#T0012, or when working in a repo that has `.tasks/`.
+description: Track tasks as plain Markdown files in each repo's `.tasks/`. One file per open task, deleted when done, with git history as the archive. Cross-repo deps via `repo#Tid`, and an overview by scanning ~/src. Promotes ad-hoc work to a tracked task when it outgrows the session. Use when the user wants to add, list, start, block, or finish a task, asks "what's open/next", wants to plan their day/week across projects, wants task tracking set up in a repo, references a task id like T7kq2x, api#Tm3xaj or owner/repo#Tm3xaj, or when working in a repo that has `.tasks/`.
 ---
 
 # Tasks as files in git
@@ -19,18 +19,21 @@ not `tasks/`, because plain `tasks/` is already a code directory in many repos
 ```
 ~/src/acme/api/.tasks/
   README.md                    # quick reference for humans (from README.template.md)
-  0007-fix-login-timeout.md
-  0008-add-export.md
+  7kq2x-fix-login-timeout.md
+  p2fen-add-export.md
 ```
 
-Task files are `NNNN-short-slug.md`, a 4-digit id plus a kebab-case slug.
-Always glob `.tasks/[0-9]*.md` so the README is skipped. There is no `done/`
+Task files are `xxxxx-short-slug.md`, a 5-character random id plus a
+kebab-case slug. Ids are random so that tasks created in parallel on
+different branches never need coordinating (see New). Older repos may have
+4-digit ids like `0007`; keep them, don't rename. Always glob
+`.tasks/*-*.md` so the README is skipped. There is no `done/`
 directory.
 
 ```markdown
 ---
 status: todo                              # todo | doing | blocked
-deps: [T0005, billing#T0012]              # optional
+deps: [Tc9wdr, billing#Tm3xaj]              # optional
 due: 2026-11-07                           # optional
 tags: [backend]                           # optional
 ---
@@ -73,7 +76,7 @@ for "commit this" or "fix that". Propose a task when a signal appears:
 5. **The user says so:** "track this", "make a task".
 
 Proposing is one line plus a draft: *"Promote to
-`.tasks/0012-fix-retry-loop.md`? (goal / found so far / next step)"*. On
+`.tasks/m3xaj-fix-retry-loop.md`? (goal / found so far / next step)"*. On
 yes, write the file and fill the sections from what the session already
 knows. For 2 and 5, just create it, since the user has effectively already
 said yes.
@@ -98,7 +101,7 @@ Repos are shared with teammates, so every task has an owner: the author of
 the commit that added the file.
 
 ```sh
-git log --diff-filter=A --format='%an <%ae>' -- '.tasks/0007-*' | tail -1
+git log --diff-filter=A --format='%an <%ae>' -- '.tasks/7kq2x-*' | tail -1
 ```
 
 You may update or close the user's own tasks (git `user.email`) freely. For a
@@ -111,17 +114,17 @@ to the user.
 References name repos by their git remote, not by local path, because each
 teammate's clone layout is different. The forms look like GitHub's, but the
 id always carries a `T` prefix: GitHub autolinks `#12` and `owner/repo#12` to
-PRs and issues, and never autolinks `#T12`. File names stay `0007-slug.md`.
-In commit messages, write `(task T0007)`, never `closes`/`fixes` followed by an
+PRs and issues, and never autolinks `#T12`. File names stay `7kq2x-slug.md`.
+In commit messages, write `(task T7kq2x)`, never `closes`/`fixes` followed by an
 id, since those are GitHub's issue-closing keywords.
 
-- Same repo: `T0007`.
-- Same owner as this repo: `billing#T0007`. This is the usual form.
-- Different owner: `someone-else/lib#T0007`. Use it only when the
+- Same repo: `T7kq2x`.
+- Same owner as this repo: `billing#T7kq2x`. This is the usual form.
+- Different owner: `someone-else/lib#T7kq2x`. Use it only when the
   owner differs from the current repo's.
 
 The owner and repo name come from `git remote get-url origin`. A repo with no
-remote is named by its directory, and only a bare `name#TNNNN` can refer to it.
+remote is named by its directory, and only a bare `name#Txxxxx` can refer to it.
 
 When writing a reference, use the shortest form that's unambiguous from the
 repo the task is in.
@@ -148,14 +151,14 @@ usually private) holds two kinds of task: work that isn't tied to any repo,
 and umbrella tasks that span repos, possibly across owners. An umbrella task
 lists its per-repo subtasks in `deps` with owner-qualified references (it
 lives under a different owner than they do), so it shows as ready once they
-are all closed. Each subtask says `part of you/tasks#T0003` in its body. If
+are all closed. Each subtask says `part of you/tasks#Th4tzb` in its body. If
 the tasks repo is private, leave that backlink out of subtasks in shared
 repos, because teammates can't resolve it.
 
 **Dependency state.** Resolve the reference to a clone `$d`, then:
 
-1. `$d/.tasks/NNNN-*.md` exists → **open**.
-2. Otherwise, if `git -C "$d" log --diff-filter=D --format=%h -- '.tasks/NNNN-*'`
+1. `$d/.tasks/xxxxx-*.md` exists → **open**.
+2. Otherwise, if `git -C "$d" log --diff-filter=D --format=%h -- '.tasks/xxxxx-*'`
    prints a commit → **done**. The clone may be stale: offer to
    `git -C "$d" fetch` and check `origin/HEAD` when it matters.
 3. Otherwise (not cloned, or the id never existed) → **unknown**. Report it.
@@ -166,44 +169,50 @@ set it back to `todo`.
 
 ## Operations (in one repo)
 
-**New.** The next id is one more than the highest id that ever existed, which
-includes deleted tasks, so ids are never reused:
+**New.** Draw a random 5-character id from `0-9a-z` without `i l o u`, and
+redraw if any ref this clone knows has ever used it, deleted tasks included,
+so ids are never reused:
 
 ```sh
-{ ls .tasks; git log --all --format= --name-only -- .tasks/; } 2>/dev/null \
-  | grep -o '^\(\.tasks/\)\?[0-9]\{4\}' | grep -o '[0-9]\{4\}' | sort -n | tail -1
+bash -c 'used=$({ ls .tasks; git log --all --format= --name-only -- .tasks/; } 2>/dev/null \
+    | sed -n "s#^\(\.tasks/\)\{0,1\}\([0-9a-z]\{5\}\)-.*#\2#p")
+  while id=$(LC_ALL=C tr -dc 0-9abcdefghjkmnpqrstvwxyz </dev/urandom | head -c5)
+    printf "%s\n" "$used" | grep -qx "$id"; do :; done; echo "$id"'
 ```
 
-No output means start at `0001`. Create the file with `status: todo`. If
-`.tasks/README.md` is missing, copy `README.template.md` from this skill's
-directory there in the same step.
+Two branches that haven't seen each other can still draw the same id, but
+rarely: about 0.03% when each adds 100 tasks. The session hook warns when it happens;
+then rename the newer file and fix its references.
 
-**List.** `grep -H '^status:' .tasks/[0-9]*.md`. Show id, status and title.
+Create the file with `status: todo`. If `.tasks/README.md` is missing, copy
+`README.template.md` from this skill's directory there in the same step.
+
+**List.** `grep -H '^status:' .tasks/*-*.md`. Show id, status and title.
 
 **Start / block.** Edit the `status:` line. For `blocked`, write the reason
 in the body, and in `deps` when it is another task.
 
-**Done.** Delete the file (`rm .tasks/0007-*.md`) along with the change that
+**Done.** Delete the file (`rm .tasks/7kq2x-*.md`) along with the change that
 resolves it, so the same commit closes the task and ships the fix. Put the id
-in the commit message (`… (task T0007)`). The user's git rules still apply:
+in the commit message (`… (task T7kq2x)`). The user's git rules still apply:
 staging and committing need their approval. Then check whether this unblocks
-anything elsewhere: `bash -c "grep -l '<repo>#T0007' ~/src/{*,*/*,*/*/*}/.tasks/[0-9]*.md"`.
+anything elsewhere: `bash -c "grep -l '<repo>#T7kq2x' ~/src/{*,*/*,*/*/*}/.tasks/*-*.md"`.
 
 **Closed tasks / history:**
 
 - list closed tasks: `git log --diff-filter=D --format='%h %ad %s' --date=short --name-only -- .tasks/`
-- read a closed task: `git show <commit>^:.tasks/0007-fix-login-timeout.md`
-- find work by id: `git log --grep T0007` plus `git log -- '.tasks/0007-*'`
+- read a closed task: `git show <commit>^:.tasks/7kq2x-fix-login-timeout.md`
+- find work by id: `git log --grep T7kq2x` plus `git log -- '.tasks/7kq2x-*'`
 - search all task text ever written: `git log -S '<text>' -- .tasks/`
 - the Claude sessions that touched a task: the `Claude-Session:` trailers in
-  `git log -- '.tasks/0007-*'`. Don't record session ids in the task file.
+  `git log -- '.tasks/7kq2x-*'`. Don't record session ids in the task file.
 
 ## Overview and planning (all repos)
 
 Repos sit at depth 1 to 3 under `~/src`. This scan finds every open task:
 
 ```sh
-bash -c "grep -H -e '^status:' -e '^due:' -e '^deps:' -e '^# ' ~/src/{*,*/*,*/*/*}/.tasks/[0-9]*.md 2>/dev/null"
+bash -c "grep -H -e '^status:' -e '^due:' -e '^deps:' -e '^# ' ~/src/{*,*/*,*/*/*}/.tasks/*-*.md 2>/dev/null"
 ```
 
 When the user asks "what's open", or to plan their day or week, group the
@@ -224,7 +233,7 @@ past):
 
 ```sh
 bash -c 'for r in ~/src/{*,*/*,*/*/*}/; do [ -e "$r/.git" ] || continue
-  n=$(git -C "$r" log --since="1 week ago" --diff-filter=D --format= --name-only -- ".tasks/[0-9]*" 2>/dev/null | grep -c .)
+  n=$(git -C "$r" log --since="1 week ago" --diff-filter=D --format= --name-only -- ".tasks/*-*" 2>/dev/null | grep -c .)
   [ "$n" -gt 0 ] && echo "${r#$HOME/src/} $n"; done'
 ```
 

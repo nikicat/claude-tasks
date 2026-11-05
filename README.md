@@ -4,11 +4,11 @@ Task tracking for git repos as plain Markdown files, with a
 [Claude Code](https://claude.com/claude-code) plugin that keeps the files up to
 date while you work. There is no database and no service.
 
-- Each repo keeps its open tasks in `.tasks/NNNN-slug.md`, one file per task.
+- Each repo keeps its open tasks in `.tasks/xxxxx-slug.md`, one file per task.
 - **Done = deleted** in the commit that resolves the task. Git history is the
   archive.
-- Cross-repo dependencies are written `other-repo#T0012` (same owner) or
-  `owner/repo#T0012`, resolved to whichever local clone has that remote.
+- Cross-repo dependencies are written `other-repo#Tm3xaj` (same owner) or
+  `owner/repo#Tm3xaj`, resolved to whichever local clone has that remote.
 - Only repos that contain `.tasks/` are touched.
 
 The file format and the manual workflow are in
